@@ -3,8 +3,8 @@ import numpy as np
 import pickle
 
 # ---------------------- Load Model & Scaler -------------------------
-model = pickle.load(open("wine_model.pkl", "rb"))
-scaler = pickle.load(open("scaler.pkl", "rb"))
+model = pickle.load(open("wine_model_streamlit.pkl", "rb"))
+scaler = pickle.load(open("scaler_streamlit.pkl", "rb"))
 
 # ---------------------- Page Setup ---------------------------------
 st.set_page_config(page_title="Wine Quality Predictor", page_icon="🍷", layout="wide")
