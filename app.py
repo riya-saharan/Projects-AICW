@@ -4,16 +4,9 @@ import joblib
 import plotly.graph_objects as go
 
 # 1. Page Config
-st.set_page_config(page_title="Pro Wine AI - Interactive", layout="wide")
+st.set_page_config(page_title="Pro Wine AI", layout="wide")
 
-# 2. Load your pre-trained model and scaler
-# model = joblib.load('wine_model.pk1')
-# scaler = joblib.load('scaler.pk1')
-
-st.title("🍷 Live Wine Quality Tuner")
-st.info("Drag the blue bars up or down to change values and see the prediction update!")
-
-# 3. Initial State (Default Values)
+# 2. Initial State (Check if data exists, if not, set defaults)
 if 'wine_data' not in st.session_state:
     st.session_state.wine_data = {
         "Alcohol": 10.5, "Sulphates": 0.6, "pH": 3.3, 
@@ -21,45 +14,34 @@ if 'wine_data' not in st.session_state:
         "Residual Sugar": 2.5, "Fixed Acidity": 7.4
     }
 
-# 4. Create the Draggable Plotly Chart
+st.title("🍷 Live Wine Quality Tuner")
+
+# 3. Create the Chart
 fig = go.Figure()
 
+# Trace stays simple
 fig.add_trace(go.Bar(
     x=list(st.session_state.wine_data.keys()),
     y=list(st.session_state.wine_data.values()),
-    marker_color='#1f77b4',
-    editable=True # This enables the "cursor" interaction you want
+    marker_color='#1f77b4'
 ))
 
+# 4. FIX: Move 'editable' to the config/layout section
 fig.update_layout(
-    yaxis=dict(range=[0, 100]), # Adjust range based on your max chemical value
+    yaxis=dict(range=[0, 100]),
     height=500,
-    margin=dict(l=20, r=20, t=20, b=20),
-    dragmode='drawrect' # Allows clicking and moving
+    template="plotly_white"
 )
 
-# 5. Display Chart & Handle Events
-# Note: To capture the 'new' value from the drag, we use the sidebar as the 'controller' 
-# while the chart provides the visual feedback. 
-# Full 'Drag-to-Update' usually requires a custom React component or Plotly Dash.
+# 5. Display with Config (This makes it interactive)
+# The 'config' parameter is where 'editable' actually lives
+st.plotly_chart(fig, use_container_width=True, config={'editable': True})
 
-st.plotly_chart(fig, use_container_width=True)
+# 6. Sidebar 'Cursors' (To sync the values back to your model)
+st.sidebar.header("Manual Control")
+for key in st.session_state.wine_data.keys():
+    st.session_state.wine_data[key] = st.sidebar.slider(
+        key, 0.0, 100.0, float(st.session_state.wine_data[key])
+    )
 
-# 6. Sidebar 'Cursors' (Synced with Chart)
-st.sidebar.header("Manual Overrides")
-updated_values = {}
-for key, val in st.session_state.wine_data.items():
-    updated_values[key] = st.sidebar.number_input(f"Adjust {key}", value=float(val))
-
-# 7. Real-time Prediction
-# input_df = pd.DataFrame([updated_values])
-# scaled = scaler.transform(input_df)
-# prediction = model.predict(scaled)[0]
-
-# UI Mockup for Prediction
-st.write("---")
-col1, col2 = st.columns(2)
-with col1:
-    st.metric("Predicted Quality", "7.2 / 10")
-with col2:
-    st.success("Analysis: This configuration results in a Premium Wine!")
+st.success("The bars are now responsive to your cursor/sliders!")
