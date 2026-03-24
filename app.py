@@ -61,4 +61,4 @@ with col2:
                 st.write(
                     "This wine is good for immediate consumption but lacks premium complexity.")
 
-st.info("💡 **Note for Professor:** This model uses a Random Forest Classifier with feature scaling.")
+
